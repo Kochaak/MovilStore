@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Express de Celulares</title>
+    <!-- Tailwind CSS para el diseño visual -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600 text-white p-2 rounded-xl flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-mobile-screen-button text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        MobileStore
+                    </h1>
+                    <p class="text-xs text-slate-500">Catálogo de Celulares</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Botón Modo Admin -->
+                <button id="adminToggleBtn" onclick="toggleAdminMode()" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-medium transition text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-emerald-600" id="adminIcon"></i>
+                    <span id="adminBtnText">Modo Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Banner Configuración WhatsApp Admin (Visible solo en Admin Mode) -->
+        <div id="adminConfigBanner" class="hidden mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-whatsapp text-2xl text-emerald-600"></i>
+                <div>
+                    <h3 class="text-sm font-semibold text-emerald-900">Configuración de WhatsApp de Ventas</h3>
+                    <p class="text-xs text-emerald-700">Ingresa tu número de teléfono (con código de país) a donde llegarán los encargos.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <input type="text" id="phoneInput" placeholder="Ej: 5491122334455" class="bg-white border border-emerald-300 rounded-xl px-3 py-1.5 text-sm w-full sm:w-48 focus:outline-none focus:border-emerald-600 text-slate-800">
+                <button onclick="savePhoneNumber()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-sm font-semibold transition whitespace-nowrap">
+                    Guardar
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Búsqueda y Botón Agregar -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-between items-center mb-8">
+            <div class="relative w-full sm:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Buscar equipo o modelo..." class="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition text-slate-800 placeholder-slate-400">
+            </div>
+
+            <button id="addProductBtn" onclick="openModal()" class="hidden w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md">
+                <i class="fa-solid fa-plus"></i>
+                <span>Agregar Producto</span>
+            </button>
+        </div>
+
+        <!-- Grid de Productos -->
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Los productos se cargan dinámicamente -->
+        </div>
+
+        <!-- Mensaje Estado Vacío -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <i class="fa-solid fa-box-open text-5xl text-slate-400 mb-4"></i>
+            <h3 class="text-lg font-medium text-slate-700">No hay productos disponibles</h3>
+            <p class="text-sm text-slate-500 mt-1">Activa el "Modo Admin" arriba a la derecha para empezar a cargar productos.</p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        <p>© Catálogo de Celulares — Pedidos directos por WhatsApp</p>
+    </footer>
+
+    <!-- Modal para Agregar / Editar Producto -->
+    <div id="productModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 id="modalTitle" class="font-bold text-slate-800">Agregar Nuevo Producto</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="productId">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Celular / Modelo</label>
+                    <input type="text" id="productName" required placeholder="Ej: iPhone 13 128GB" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio ($)</label>
+                    <input type="number" id="productPrice" required min="0" step="1" placeholder="Ej: 850000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <p class="text-[10px] text-emerald-600 mt-1">* Asegúrate de incluir tu margen de ganancia de $2.000.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL de la Imagen (Opcional)</label>
+                    <input type="url" id="productImage" placeholder="https://ejemplo.com/imagen.jpg" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Si lo dejas en blanco, se asignará una imagen de muestra.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción / Estado (Opcional)</label>
+                    <textarea id="productDesc" rows="2" placeholder="Ej: Nuevo en caja sellada. Batería 100%. Libre de fábrica." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-medium text-sm transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-semibold text-sm transition shadow-md">
+                        Guardar Ítem
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidad -->
+    <script>
+        // CONTRASEÑA DE ADMINISTRADOR (Cámbiala por la tuya)
+        const ADMIN_PASSWORD = "1234";
+
+        // Productos por defecto de demostración
+        const initialProducts = [
+            {
+                id: '1',
+                name: 'Samsung Galaxy A54 5G 128GB',
+                price: 450000,
+                image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=500&q=80',
+                description: 'Nuevo sellado en caja con garantía de fábrica.'
+            },
+            {
+                id: '2',
+                name: 'iPhone 13 128GB Starlight',
+                price: 920000,
+                image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=500&q=80',
+                description: 'Batería 100%, incluye cable original.'
+            },
+            {
+                id: '3',
+                name: 'Motorola Moto G84 256GB',
+                price: 380000,
+                image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80',
+                description: 'Pantalla OLED 120Hz, 12GB RAM.'
+            }
+        ];
+
+        let products = [];
+        let isAdmin = false;
+        let whatsappNumber = localStorage.getItem('catalog_phone') || '5491112345678';
+
+        // Inicialización al cargar la página
+        window.onload = function() {
+            const savedProducts = localStorage.getItem('catalog_products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+            } else {
+                products = initialProducts;
+                saveToLocalStorage();
+            }
+            
+            document.getElementById('phoneInput').value = whatsappNumber;
+            renderProducts(products);
+        };
+
+        // Renderizado de lista de productos
+        function renderProducts(items) {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            items.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg transition duration-300 flex flex-col justify-between group";
+
+                const defaultImg = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80";
+                const imgUrl = prod.image && prod.image.trim() !== "" ? prod.image : defaultImg;
+
+                // Mensaje predeterminado de Encargo por WhatsApp
+                const msg = encodeURIComponent(`¡Hola! Quiero encargar el *${prod.name}* por *$${prod.price.toLocaleString('es-AR')}*. ¿Cómo podemos coordinar?`);
+                const waUrl = `https://wa.me/${whatsappNumber}?text=${msg}`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-48 bg-slate-100 overflow-hidden">
+                            <img src="${imgUrl}" alt="${prod.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${defaultImg}'">
+                            ${isAdmin ? `
+                                <div class="absolute top-2 right-2 flex gap-1 bg-white/90 backdrop-blur p-1 rounded-xl shadow-md">
+                                    <button onclick="editProduct('${prod.id}')" class="p-1.5 text-slate-600 hover:text-emerald-600 text-xs">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteProduct('${prod.id}')" class="p-1.5 text-slate-600 hover:text-rose-600 text-xs">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h3 class="font-bold text-slate-800 text-base line-clamp-2">${prod.name}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">${prod.description || 'Sin descripción adicional.'}</p>
+                            <div class="text-xl font-extrabold text-emerald-600 pt-1">
+                                $${prod.price.toLocaleString('es-AR')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <a href="${waUrl}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition duration-200">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>Preguntar / Encargar</span>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Alternar Modo Administrador con contraseña
+        function toggleAdminMode() {
+            if (!isAdmin) {
+                const passwordInput = prompt("Ingresa la clave de administrador:");
+                if (passwordInput === null) return;
+                
+                if (passwordInput !== ADMIN_PASSWORD) {
+                    alert("Clave incorrecta.");
+                    return;
+                }
+                isAdmin = true;
+            } else {
+                isAdmin = false;
+            }
+
+            const btnText = document.getElementById('adminBtnText');
+            const icon = document.getElementById('adminIcon');
+            const addBtn = document.getElementById('addProductBtn');
+            const configBanner = document.getElementById('adminConfigBanner');
+
+            if (isAdmin) {
+                btnText.textContent = "Modo Ver";
+                icon.className = "fa-solid fa-lock-open text-amber-600";
+                addBtn.classList.remove('hidden');
+                configBanner.classList.remove('hidden');
+            } else {
+                btnText.textContent = "Modo Admin";
+                icon.className = "fa-solid fa-lock text-emerald-600";
+                addBtn.classList.add('hidden');
+                configBanner.classList.add('hidden');
+            }
+            renderProducts(products);
+        }
+
+        // Guardar Teléfono WhatsApp
+        function savePhoneNumber() {
+            const input = document.getElementById('phoneInput').value.trim();
+            if (input) {
+                whatsappNumber = input;
+                localStorage.setItem('catalog_phone', whatsappNumber);
+                alert("Número de WhatsApp guardado correctamente.");
+                renderProducts(products);
+            }
+        }
+
+        // Abrir Modal para crear/editar
+        function openModal() {
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('modalTitle').textContent = "Agregar Nuevo Producto";
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // Guardar o Actualizar producto
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const image = document.getElementById('productImage').value;
+            const description = document.getElementById('productDesc').value;
+
+            if (id) {
+                const index = products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    products[index] = { id, name, price, image, description };
+                }
+            } else {
+                const newProd = {
+                    id: Date.now().toString(),
+                    name,
+                    price,
+                    image,
+                    description
+                };
+                products.unshift(newProd);
+            }
+
+            saveToLocalStorage();
+            renderProducts(products);
+            closeModal();
+        }
+
+        // Editar producto
+        function editProduct(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+
+            document.getElementById('productId').value = prod.id;
+            document.getElementById('productName').value = prod.name;
+            document.getElementById('productPrice').value = prod.price;
+            document.getElementById('productImage').value = prod.image || '';
+            document.getElementById('productDesc').value = prod.description || '';
+
+            document.getElementById('modalTitle').textContent = "Editar Producto";
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        // Eliminar producto
+        function deleteProduct(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+                products = products.filter(p => p.id !== id);
+                saveToLocalStorage();
+                renderProducts(products);
+            }
+        }
+
+        // Filtrar productos con el buscador
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query) || (p.description && p.description.toLowerCase().includes(query)));
+            renderProducts(filtered);
+        }
+
+        // Persistencia Local
+        function saveToLocalStorage() {
+            localStorage.setItem('catalog_products', JSON.stringify(products));
+        }
+    </script>
+</body>
+</html>
