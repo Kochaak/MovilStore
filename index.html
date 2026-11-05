@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo Express de Celulares</title>
+    <title>Catálogo Express</title>
     <!-- Tailwind CSS para el diseño visual -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
@@ -17,7 +17,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
     <!-- Header / Navbar -->
-    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <header class="bg-white/85 backdrop-blur border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="bg-emerald-600 text-white p-2 rounded-xl flex items-center justify-center font-bold">
@@ -27,15 +27,15 @@
                     <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                         MobileStore
                     </h1>
-                    <p class="text-xs text-slate-500">Catálogo de Celulares</p>
+                    <p class="text-xs text-slate-500">Catálogo de Productos</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- Botón Modo Admin -->
+                <!-- Botón de Ubicación con la funcionalidad de Modo Admin -->
                 <button id="adminToggleBtn" onclick="toggleAdminMode()" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-medium transition text-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-emerald-600" id="adminIcon"></i>
-                    <span id="adminBtnText">Modo Admin</span>
+                    <i class="fa-solid fa-location-dot text-emerald-600" id="adminIcon"></i>
+                    <span id="adminBtnText">Villa Ángela - Chaco</span>
                 </button>
             </div>
         </div>
@@ -44,7 +44,7 @@
     <!-- Contenido Principal -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Banner Configuración WhatsApp Admin (Visible solo en Admin Mode) -->
+        <!-- Banner Configuración WhatsApp Admin -->
         <div id="adminConfigBanner" class="hidden mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <i class="fa-brands fa-whatsapp text-2xl text-emerald-600"></i>
@@ -83,15 +83,25 @@
         <div id="emptyState" class="hidden text-center py-16">
             <i class="fa-solid fa-box-open text-5xl text-slate-400 mb-4"></i>
             <h3 class="text-lg font-medium text-slate-700">No hay productos disponibles</h3>
-            <p class="text-sm text-slate-500 mt-1">Activa el "Modo Admin" arriba a la derecha para empezar a cargar productos.</p>
+            <p class="text-sm text-slate-500 mt-1">Activa el modo de administración haciendo clic arriba en la ubicación para agregar productos.</p>
         </div>
 
     </main>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>© Catálogo de Celulares — Pedidos directos por WhatsApp</p>
+        <p>© Catálogo Express — Villa Ángela, Chaco — Pedidos directos por WhatsApp</p>
     </footer>
+
+    <!-- Modal para Ampliar Imagen -->
+    <div id="imageModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" onclick="closeImageModal()">
+        <div class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-emerald-400 text-2xl font-bold p-2 z-10 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="modalFullImage" src="" alt="Imagen ampliada" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl bg-white/10">
+        </div>
+    </div>
 
     <!-- Modal para Agregar / Editar Producto -->
     <div id="productModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -107,25 +117,28 @@
                 <input type="hidden" id="productId">
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Celular / Modelo</label>
-                    <input type="text" id="productName" required placeholder="Ej: iPhone 13 128GB" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Producto</label>
+                    <input type="text" id="productName" required placeholder="Ej: Protectores Armor" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Precio ($)</label>
-                    <input type="number" id="productPrice" required min="0" step="1" placeholder="Ej: 850000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
-                    <p class="text-[10px] text-emerald-600 mt-1">* Asegúrate de incluir tu margen de ganancia de $2.000.</p>
+                    <input type="number" id="productPrice" required min="0" step="1" placeholder="Ej: 6000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL de la Imagen (Opcional)</label>
-                    <input type="url" id="productImage" placeholder="https://ejemplo.com/imagen.jpg" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
-                    <p class="text-[10px] text-slate-400 mt-1">Si lo dejas en blanco, se asignará una imagen de muestra.</p>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL de la Imagen 1</label>
+                    <input type="url" id="productImage1" placeholder="armor1.jpg o https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción / Estado (Opcional)</label>
-                    <textarea id="productDesc" rows="2" placeholder="Ej: Nuevo en caja sellada. Batería 100%. Libre de fábrica." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL de la Imagen 2 (Opcional)</label>
+                    <input type="url" id="productImage2" placeholder="Segunda imagen si tiene..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción / Estado</label>
+                    <textarea id="productDesc" rows="2" placeholder="Ej: Distintos modelos Consultar, ENVIO GRATIS" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
                 </div>
 
                 <div class="pt-2 flex gap-3">
@@ -142,41 +155,35 @@
 
     <!-- Script de Funcionalidad -->
     <script>
-        // CONTRASEÑA DE ADMINISTRADOR (Cámbiala por la tuya)
         const ADMIN_PASSWORD = "WWIINNDDOOWWSS10";
 
-        // Productos por defecto de demostración
         const initialProducts = [
             {
-                id: '1',
-                name: 'Samsung Galaxy A54 5G 128GB',
-                price: 450000,
-                image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=500&q=80',
-                description: 'Nuevo sellado en caja con garantía de fábrica.'
+                id: 'armor-1',
+                name: 'PROTECTORES ARMOR',
+                price: 6000,
+                images: ['armor1.jpg'],
+                description: 'Distintos modelos Consultar, ENVIO GRATIS'
             },
             {
-                id: '2',
-                name: 'iPhone 13 128GB Starlight',
-                price: 920000,
-                image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=500&q=80',
-                description: 'Batería 100%, incluye cable original.'
-            },
-            {
-                id: '3',
-                name: 'Motorola Moto G84 256GB',
-                price: 380000,
-                image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80',
-                description: 'Pantalla OLED 120Hz, 12GB RAM.'
+                id: 'noga-2',
+                name: 'AURICULAR NOGA TIWNS',
+                price: 14000,
+                images: [
+                    'https://http2.mlstatic.com/D_NQ_NP_2X_657773-MLA95500308499_102025-F.webp',
+                    'https://http2.mlstatic.com/D_NQ_NP_2X_693704-MLA44812228889_022021-F.webp'
+                ],
+                description: 'Nuevo, en caja. ENVIO A DOMICILIO'
             }
         ];
 
         let products = [];
         let isAdmin = false;
         let whatsappNumber = localStorage.getItem('catalog_phone') || '3735403331';
+        let productCurrentIndices = {};
 
-        // Inicialización al cargar la página
         window.onload = function() {
-            const savedProducts = localStorage.getItem('catalog_products');
+            const savedProducts = localStorage.getItem('catalog_products_v2');
             if (savedProducts) {
                 products = JSON.parse(savedProducts);
             } else {
@@ -188,7 +195,6 @@
             renderProducts(products);
         };
 
-        // Renderizado de lista de productos
         function renderProducts(items) {
             const grid = document.getElementById('productsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -205,19 +211,44 @@
                 const card = document.createElement('div');
                 card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg transition duration-300 flex flex-col justify-between group";
 
-                const defaultImg = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80";
-                const imgUrl = prod.image && prod.image.trim() !== "" ? prod.image : defaultImg;
+                if (productCurrentIndices[prod.id] === undefined) {
+                    productCurrentIndices[prod.id] = 0;
+                }
+                const currentIdx = productCurrentIndices[prod.id];
+                const images = prod.images && prod.images.length > 0 ? prod.images : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80'];
+                const activeImg = images[currentIdx] || images[0];
 
-                // Mensaje predeterminado de Encargo por WhatsApp
                 const msg = encodeURIComponent(`¡Hola! Quiero encargar el *${prod.name}* por *$${prod.price.toLocaleString('es-AR')}*. ¿Cómo podemos coordinar?`);
                 const waUrl = `https://wa.me/${whatsappNumber}?text=${msg}`;
 
+                let carouselControls = '';
+                let dotsIndicator = '';
+                if (images.length > 1) {
+                    carouselControls = `
+                        <button onclick="event.stopPropagation(); changeImage('${prod.id}', -1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-slate-800/60 hover:bg-slate-800/80 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs backdrop-blur transition shadow">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); changeImage('${prod.id}', 1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800/60 hover:bg-slate-800/80 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs backdrop-blur transition shadow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    `;
+                    dotsIndicator = `
+                        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-slate-800/40 px-2 py-1 rounded-full backdrop-blur">
+                            ${images.map((_, i) => `<span class="w-2 h-2 rounded-full transition-all ${i === currentIdx ? 'bg-white w-4' : 'bg-white/50'}"></span>`).join('')}
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
                     <div>
-                        <div class="relative h-48 bg-slate-100 overflow-hidden">
-                            <img src="${imgUrl}" alt="${prod.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${defaultImg}'">
+                        <div class="relative h-48 bg-slate-100 overflow-hidden cursor-pointer border-b border-slate-100" onclick="openImageModal('${activeImg}')">
+                            <img src="${activeImg}" alt="${prod.name}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80'">
+                            
+                            ${carouselControls}
+                            ${dotsIndicator}
+
                             ${isAdmin ? `
-                                <div class="absolute top-2 right-2 flex gap-1 bg-white/90 backdrop-blur p-1 rounded-xl shadow-md">
+                                <div class="absolute top-2 right-2 flex gap-1 bg-white/90 backdrop-blur p-1 rounded-xl shadow-md z-20" onclick="event.stopPropagation()">
                                     <button onclick="editProduct('${prod.id}')" class="p-1.5 text-slate-600 hover:text-emerald-600 text-xs">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
@@ -242,16 +273,44 @@
                         </a>
                     </div>
                 `;
+
+                let touchStartX = 0;
+                const imgContainer = card.querySelector('.relative.h-48');
+                imgContainer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+                imgContainer.addEventListener('touchend', e => {
+                    const diff = e.changedTouches[0].screenX - touchStartX;
+                    if (Math.abs(diff) > 40) {
+                        changeImage(prod.id, diff > 0 ? -1 : 1);
+                    }
+                }, {passive: true});
+
                 grid.appendChild(card);
             });
         }
 
-        // Alternar Modo Administrador con contraseña
+        function changeImage(productId, direction) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod || !prod.images) return;
+            const len = prod.images.length;
+            let current = productCurrentIndices[productId] || 0;
+            current = (current + direction + len) % len;
+            productCurrentIndices[productId] = current;
+            renderProducts(products);
+        }
+
+        function openImageModal(url) {
+            document.getElementById('modalFullImage').src = url;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
         function toggleAdminMode() {
             if (!isAdmin) {
                 const passwordInput = prompt("Ingresa la clave de administrador:");
                 if (passwordInput === null) return;
-                
                 if (passwordInput !== ADMIN_PASSWORD) {
                     alert("Clave incorrecta.");
                     return;
@@ -267,20 +326,19 @@
             const configBanner = document.getElementById('adminConfigBanner');
 
             if (isAdmin) {
-                btnText.textContent = "Modo Ver";
-                icon.className = "fa-solid fa-lock-open text-amber-600";
+                btnText.textContent = "Modo Ver (Admin Activo)";
+                icon.className = "fa-solid fa-location-dot text-amber-600";
                 addBtn.classList.remove('hidden');
                 configBanner.classList.remove('hidden');
             } else {
-                btnText.textContent = "Modo Admin";
-                icon.className = "fa-solid fa-lock text-emerald-600";
+                btnText.textContent = "Villa Ángela - Chaco";
+                icon.className = "fa-solid fa-location-dot text-emerald-600";
                 addBtn.classList.add('hidden');
                 configBanner.classList.add('hidden');
             }
             renderProducts(products);
         }
 
-        // Guardar Teléfono WhatsApp
         function savePhoneNumber() {
             const input = document.getElementById('phoneInput').value.trim();
             if (input) {
@@ -291,7 +349,6 @@
             }
         }
 
-        // Abrir Modal para crear/editar
         function openModal() {
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
@@ -303,26 +360,30 @@
             document.getElementById('productModal').classList.add('hidden');
         }
 
-        // Guardar o Actualizar producto
         function saveProduct(e) {
             e.preventDefault();
             const id = document.getElementById('productId').value;
             const name = document.getElementById('productName').value;
             const price = parseFloat(document.getElementById('productPrice').value);
-            const image = document.getElementById('productImage').value;
+            const img1 = document.getElementById('productImage1').value.trim();
+            const img2 = document.getElementById('productImage2').value.trim();
             const description = document.getElementById('productDesc').value;
+
+            let images = [];
+            if (img1) images.push(img1);
+            if (img2) images.push(img2);
 
             if (id) {
                 const index = products.findIndex(p => p.id === id);
                 if (index !== -1) {
-                    products[index] = { id, name, price, image, description };
+                    products[index] = { id, name, price, images, description };
                 }
             } else {
                 const newProd = {
                     id: Date.now().toString(),
                     name,
                     price,
-                    image,
+                    images: images.length > 0 ? images : ['armor1.jpg'],
                     description
                 };
                 products.unshift(newProd);
@@ -333,7 +394,6 @@
             closeModal();
         }
 
-        // Editar producto
         function editProduct(id) {
             const prod = products.find(p => p.id === id);
             if (!prod) return;
@@ -341,14 +401,14 @@
             document.getElementById('productId').value = prod.id;
             document.getElementById('productName').value = prod.name;
             document.getElementById('productPrice').value = prod.price;
-            document.getElementById('productImage').value = prod.image || '';
+            document.getElementById('productImage1').value = prod.images && prod.images[0] ? prod.images[0] : '';
+            document.getElementById('productImage2').value = prod.images && prod.images[1] ? prod.images[1] : '';
             document.getElementById('productDesc').value = prod.description || '';
 
             document.getElementById('modalTitle').textContent = "Editar Producto";
             document.getElementById('productModal').classList.remove('hidden');
         }
 
-        // Eliminar producto
         function deleteProduct(id) {
             if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
                 products = products.filter(p => p.id !== id);
@@ -357,16 +417,14 @@
             }
         }
 
-        // Filtrar productos con el buscador
         function filterProducts() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = products.filter(p => p.name.toLowerCase().includes(query) || (p.description && p.description.toLowerCase().includes(query)));
             renderProducts(filtered);
         }
 
-        // Persistencia Local
         function saveToLocalStorage() {
-            localStorage.setItem('catalog_products', JSON.stringify(products));
+            localStorage.setItem('catalog_products_v2', JSON.stringify(products));
         }
     </script>
 </body>
