@@ -12,14 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Ocultar barra de scroll en contenedores scrolleables horizontalmente */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -40,7 +34,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- Botón de Ubicación con la funcionalidad de Modo Admin -->
                 <button id="adminToggleBtn" onclick="toggleAdminMode()" class="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-medium transition text-slate-700 flex items-center gap-2">
                     <i class="fa-solid fa-location-dot text-emerald-600" id="adminIcon"></i>
                     <span id="adminBtnText">Villa Ángela - Chaco</span>
@@ -91,9 +84,13 @@
                         <i class="fa-solid fa-plug text-xs"></i>
                         <span>AccSes</span>
                     </button>
-                    <button onclick="selectCategory('mas')" id="cat-mas" class="cat-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition flex items-center gap-2">
-                        <i class="fa-solid fa-ellipsis text-xs"></i>
-                        <span>Más</span>
+                    <button onclick="selectCategory('celulares')" id="cat-celulares" class="cat-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-mobile-screen text-xs"></i>
+                        <span>Celulares</span>
+                    </button>
+                    <button onclick="selectCategory('electro')" id="cat-electro" class="cat-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-xs"></i>
+                        <span>Electro</span>
                     </button>
                 </div>
             </div>
@@ -113,9 +110,7 @@
         </div>
 
         <!-- Grid de Productos -->
-        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Los productos se cargan dinámicamente -->
-        </div>
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
 
         <!-- Mensaje Estado Vacío -->
         <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed">
@@ -156,7 +151,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Producto</label>
-                    <input type="text" id="productName" required placeholder="Ej: Protectores Armor" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="productName" required placeholder="Ej: Protector Proton" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
@@ -165,13 +160,14 @@
                         <option value="fundas">Fundas</option>
                         <option value="auris">Auris</option>
                         <option value="accses">AccSes</option>
-                        <option value="mas">Más</option>
+                        <option value="celulares">Celulares</option>
+                        <option value="electro">Electro</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Precio ($)</label>
-                    <input type="number" id="productPrice" required min="0" step="1" placeholder="Ej: 6000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <input type="number" id="productPrice" required min="0" step="1" placeholder="Ej: 28000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
@@ -186,7 +182,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción / Estado</label>
-                    <textarea id="productDesc" rows="2" placeholder="Ej: Distintos modelos Consultar, ENVIO GRATIS" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                    <textarea id="productDesc" rows="2" placeholder="Ej: Par proton de 18 leds alta luminosidad RGB envío gratis" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
                 </div>
 
                 <div class="pt-2 flex gap-3">
@@ -206,6 +202,14 @@
         const ADMIN_PASSWORD = "WWIINNDDOOWWSS10";
 
         const initialProducts = [
+            {
+                id: 'proton-led',
+                name: 'PROTON DE LUCES',
+                category: 'electro',
+                price: 28000,
+                images: ['https://www.clashinsumos.ar/wp-content/uploads/2025/03/proton.webp'],
+                description: 'PAR PROTON DE 18 LEDS ALTA LUMINOSIDAD RGB ENVIO GRATIS. Ideal para eventos, fiestas y escenarios con excelente potencia lumínica.'
+            },
             {
                 id: 'armor-1',
                 name: 'PROTECTORES ARMOR',
@@ -232,9 +236,10 @@
         let isAdmin = false;
         let whatsappNumber = localStorage.getItem('catalog_phone') || '3735403331';
         let productCurrentIndices = {};
+        let expandedDescriptions = {}; // Controla qué descripciones están abiertas
 
         window.onload = function() {
-            const savedProducts = localStorage.getItem('catalog_products_v3');
+            const savedProducts = localStorage.getItem('catalog_products_v4');
             if (savedProducts) {
                 products = JSON.parse(savedProducts);
             } else {
@@ -249,7 +254,6 @@
         function selectCategory(catKey) {
             activeCategory = catKey;
             
-            // Actualizar apariencia visual de los botones de categoría
             const catButtons = document.querySelectorAll('.cat-btn');
             catButtons.forEach(btn => {
                 btn.className = "cat-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition flex items-center gap-2";
@@ -273,6 +277,11 @@
             });
 
             renderProducts(filtered);
+        }
+
+        function toggleDescription(productId) {
+            expandedDescriptions[productId] = !expandedDescriptions[productId];
+            applyFilters();
         }
 
         function renderProducts(items) {
@@ -319,9 +328,11 @@
                     `;
                 }
 
-                // Badge de categoría bonito
-                const catNames = { fundas: 'Fundas', auris: 'Auris', accses: 'AccSes', mas: 'Más' };
+                const catNames = { fundas: 'Fundas', auris: 'Auris', accses: 'AccSes', celulares: 'Celulares', electro: 'Electro' };
                 const categoryBadge = `<span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">${catNames[prod.category] || 'Producto'}</span>`;
+
+                const isExpanded = expandedDescriptions[prod.id];
+                const fullDesc = prod.description || 'Sin descripción adicional.';
 
                 card.innerHTML = `
                     <div>
@@ -347,7 +358,16 @@
                                 ${categoryBadge}
                             </div>
                             <h3 class="font-bold text-slate-800 text-base line-clamp-2">${prod.name}</h3>
-                            <p class="text-xs text-slate-500 line-clamp-2">${prod.description || 'Sin descripción adicional.'}</p>
+                            
+                            <!-- Sección de Descripción Interactiva -->
+                            <div class="space-y-1">
+                                <p class="text-xs text-slate-500 ${isExpanded ? '' : 'line-clamp-2'} transition-all">${fullDesc}</p>
+                                <button onclick="toggleDescription('${prod.id}')" class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 focus:outline-none">
+                                    <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-[9px]"></i>
+                                    <span>${isExpanded ? 'Ver menos' : 'Ver más información'}</span>
+                                </button>
+                            </div>
+
                             <div class="text-xl font-extrabold text-emerald-600 pt-1">
                                 $${prod.price.toLocaleString('es-AR')}
                             </div>
@@ -361,7 +381,6 @@
                     </div>
                 `;
 
-                // Soporte táctil Swipe
                 let touchStartX = 0;
                 const imgContainer = card.querySelector('.relative.h-48');
                 imgContainer.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
@@ -509,7 +528,7 @@
         }
 
         function saveToLocalStorage() {
-            localStorage.setItem('catalog_products_v3', JSON.stringify(products));
+            localStorage.setItem('catalog_products_v4', JSON.stringify(products));
         }
     </script>
 </body>
